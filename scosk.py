@@ -12,16 +12,18 @@ import sys
 import pygame
 
 pygame.init()
-ssx, ssy = 640, 320 # Screen Size <dim>
-screen = pygame.display.set_mode((ssx, ssy))
+screen_width, screen_height = 640, 320 # Screen Size <dim>
+screen = pygame.display.set_mode((screen_width, screen_height))
 screen.fill((0x0f, 0x28, 0x3c))
-sci_p = SCI_NULL
+sc_input_previous = SCI_NULL
 
 kb = sui.Keyboard()
+
 
 def tap_key(k):
     kb.pressEvent([k])
     kb.releaseEvent([k])
+
 
 def virtualKeycap(txt, x, y, w, h, px, py):
     if px > x and px < x + w and py > y and py < y+h:
@@ -36,14 +38,15 @@ def virtualKeycap(txt, x, y, w, h, px, py):
     screen.blit(textSurf, textRect)
     return b
 
-def rowOfKeys(ls, x, y, w, h, px, py, press):
-    n = len(ls)
-    a = []
+
+def rowOfKeys(key_list, x, y, w, h, px, py, press):
+    n = len(key_list)
     k = ""
-    for i, l in enumerate(ls):
-        if virtualKeycap(l, x+i*w//n, y, w//n, h, px, py) and press:
-            k = l
+    for i, key_text in enumerate(key_list):
+        if virtualKeycap(key_text, x+i*w//n, y, w//n, h, px, py) and press:
+            k = key_text
     return k
+
 
 whatKey = {
     '0' : sui.Keys.KEY_0,
@@ -94,31 +97,35 @@ whatKey = {
     '←' : sui.Keys.KEY_BACKSPACE
 }
 
+
 def rkeypad(px, py, press):
     n = 5
     tr = ""
-    tr += rowOfKeys(['7', '8', '9', '0', '-', '←'], ssx//2, 0, ssx//2, ssy//n, px, py, press)
-    tr += rowOfKeys(['y', 'u', 'i', 'o', 'p'], ssx//2, 1*ssy//n, ssx//2, ssy//n, px, py, press)
-    tr += rowOfKeys(['h', 'j', 'k', 'l', ';', '\''], ssx//2, 2*ssy//n, ssx//2, ssy//n, px, py, press)
-    tr += rowOfKeys(['n', 'm', ',', '.', '/'], ssx//2, 3*ssy//n, ssx//2, ssy//n, px, py, press)
-    tr += rowOfKeys([' '], ssx//2, 4*ssy//n, ssx//2, ssy//n, px, py, press)
+    tr += rowOfKeys(['7', '8', '9', '0', '-', '←'], screen_width // 2, 0, screen_width // 2, screen_height // n, px, py, press)
+    tr += rowOfKeys(['y', 'u', 'i', 'o', 'p'], screen_width // 2, 1 * screen_height // n, screen_width // 2, screen_height // n, px, py, press)
+    tr += rowOfKeys(['h', 'j', 'k', 'l', ';', '\''], screen_width // 2, 2 * screen_height // n, screen_width // 2, screen_height // n, px, py, press)
+    tr += rowOfKeys(['n', 'm', ',', '.', '/'], screen_width // 2, 3 * screen_height // n, screen_width // 2, screen_height // n, px, py, press)
+    tr += rowOfKeys([' '], screen_width // 2, 4 * screen_height // n, screen_width // 2, screen_height // n, px, py, press)
     return tr
+
 
 def lkeypad(px,py,press):
     n = 5
     tr = ""
-    tr += rowOfKeys(['1', '2', '3', '4', '5', '6'], 0, 0, ssx//2, ssy//n, px, py, press)
-    tr += rowOfKeys(['q', 'w', 'e', 'r', 't'], 0, 1*ssy//n, ssx//2, ssy//n, px, py, press)
-    tr += rowOfKeys(['a', 's', 'd', 'f', 'g'], 0, 2*ssy//n, ssx//2, ssy//n, px, py, press)
-    tr += rowOfKeys(['z', 'x', 'c', 'v', 'b'], 0, 3*ssy//n, ssx//2, ssy//n, px, py, press)
-    tr += rowOfKeys([' '], 0, 4*ssy//n, ssx//2, ssy//n, px, py, press)
+    tr += rowOfKeys(['1', '2', '3', '4', '5', '6'], 0, 0, screen_width // 2, screen_height // n, px, py, press)
+    tr += rowOfKeys(['q', 'w', 'e', 'r', 't'], 0, 1 * screen_height // n, screen_width // 2, screen_height // n, px, py, press)
+    tr += rowOfKeys(['a', 's', 'd', 'f', 'g'], 0, 2 * screen_height // n, screen_width // 2, screen_height // n, px, py, press)
+    tr += rowOfKeys(['z', 'x', 'c', 'v', 'b'], 0, 3 * screen_height // n, screen_width // 2, screen_height // n, px, py, press)
+    tr += rowOfKeys([' '], 0, 4 * screen_height // n, screen_width // 2, screen_height // n, px, py, press)
     return tr
+
 
 def exitCallback(evm, btn, pressed):
     screen.fill((255, 0, 0))
     print("ABORT")
     if not pressed:
         sys.exit()
+
 
 def evminit():
     evm = EventMapper()
@@ -131,37 +138,53 @@ def evminit():
     #evm.setPadButtonCallback(Pos.LEFT, _)
     return evm
 
-def update(sc, sci):
-    if sci.status != 15361:
+
+def update(sc, sc_input):
+    if sc_input.status != SCStatus.INPUT:
         return
-    evm.process(sc, sci)
-    global sci_p
-    lpx, lpy = (0x8000+sci.lpad_x*12//10)*ssx//(0x1fffe), (0x8000-sci.lpad_y*12//10)*ssy//(0xffff)
-    rpx, rpy = (0x18000+sci.rpad_x*12//10)*ssx//(0x1fffe), (0x8000-sci.rpad_y*12//10)*ssy//(0xffff)
-    lpadbuttons = sci.buttons & 0x0a000000
-    rpadbuttons = sci.buttons & 0x14000000
-    rr, rpress, lr, lpress = 10, False, 10, False
-    if rpadbuttons == 0x10000000:
-        rr = 10
-    elif rpadbuttons == 0x14000000:
-        rr, rpress = 7, (sci_p.buttons & 0x14000000 != 0x14000000)
+
+    evm.process(sc, sc_input)
+    global sc_input_previous
+    lpx, lpy = (0x8000 + sc_input.lpad_x * 12 // 10) * screen_width // (0x1fffe), (0x8000 - sc_input.lpad_y * 12 // 10) * screen_height // (0xffff)
+    rpx, rpy = (0x18000 + sc_input.rpad_x * 12 // 10) * screen_width // (0x1fffe), (0x8000 - sc_input.rpad_y * 12 // 10) * screen_height // (0xffff)
+    lpadbuttons = sc_input.buttons & (SCButtons.LPADTOUCH | SCButtons.LPAD)
+    rpadbuttons = sc_input.buttons & (SCButtons.RPADTOUCH | SCButtons.RPAD)
+
+    rpress, lpress = False, False
+
+    if rpadbuttons == SCButtons.RPADTOUCH:
+        radius_right = 10
+    elif rpadbuttons == (SCButtons.RPADTOUCH | SCButtons.RPAD):
+        radius_right = 7
+        # Handle click if previous buttons did not include both RPADTOUCH and RPAD
+        rpress = ~sc_input_previous.buttons & (SCButtons.RPADTOUCH | SCButtons.RPAD) != 0
     else:
-        rr = 100
-    if lpadbuttons == 0x08000000:
-        lr = 10
-    elif lpadbuttons == 0x0a000000:
-        lr, lpress = 7, (sci_p.buttons & 0x0a000000 != 0x0a000000)
+        radius_right = 100
+
+    if lpadbuttons == SCButtons.LPADTOUCH:
+        radius_left = 10
+    elif lpadbuttons == (SCButtons.LPADTOUCH | SCButtons.LPAD):
+        radius_left = 7
+        # Handle click if previous buttons did not include both LPADTOUCH and LPAD
+        lpress = ~sc_input_previous.buttons & (SCButtons.LPADTOUCH | SCButtons.LPAD) != 0
     else:
-        lr = 100
+        radius_left = 100
+
     screen.fill((0x0f, 0x28, 0x3c))
+
     lk = lkeypad(lpx, lpy, lpress)
-    if lpress and lk != '': tap_key(whatKey[lk])
+    if lpress and lk != '':
+        tap_key(whatKey[lk])
+
     rk = rkeypad(rpx, rpy, rpress)
-    if rpress and rk != '': tap_key(whatKey[rk])
-    pygame.draw.circle(screen, (255, 128, 128), (lpx, lpy), lr, 2)
-    pygame.draw.circle(screen, (128, 255, 128), (rpx, rpy), rr, 2)
+    if rpress and rk != '':
+        tap_key(whatKey[rk])
+
+    pygame.draw.circle(screen, (255, 128, 128), (lpx, lpy), radius_left, 2)
+    pygame.draw.circle(screen, (128, 255, 128), (rpx, rpy), radius_right, 2)
     pygame.display.update()
-    sci_p = sci
+    sc_input_previous = sc_input
+
 
 if __name__ == '__main__':
     evm = evminit()
