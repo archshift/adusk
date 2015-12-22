@@ -2,7 +2,7 @@ from distutils.core import setup
 from Cython.Build import cythonize
 
 setup(
-    name='scosk',
+    name='adusk',
     version='',
     packages=[''],
     url='',
@@ -10,5 +10,5 @@ setup(
     author='archshift',
     author_email='',
     description='',
-    ext_modules=cythonize(["scosk.py"]),
+    ext_modules=cythonize(["adusk.py"]),
 )

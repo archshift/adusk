@@ -1,26 +1,40 @@
 # Steam Controller On-Screen Keyboard
 
+Forked from [NOTtheMessiah/scosk](https://github.com/NOTtheMessiah/scosk)
 
 ## Dependencies
 
 * GNU / Linux
 * Python 3
-* [PyGame](http://pygame.org/)
+* [PySDL2](http://http://pysdl2.readthedocs.org)
 * [Standalone Steam Controller Driver](https://github.com/ynsta/steamcontroller)
 
 ## Usage
 
-```$ python scosk.py ```
+```
+python3 adusk.py
+```
 
-Creates a pygame window with a virtual keyboard. To initialize, ensure the steam controller and connected and communicating with your computer. As you press the clickpad, a keyboard press event should occur on the currently focused screen.
+## About
 
-## TODO
+adusk aims to provide a standalone virtual keyboard for use with the Steam Controller; going above
+and beyond Valve's existing implementation of a virtual keyboard, while also unencumbered
+by the need to have Steam perpetually running in the background.
 
-* Refactor with event controller
-* mimic official Steam design
-* pop up on screen away from mouse, on-top and unfocused (may require talking to X or the window manager)
-* integrate with [sc-desktop](https://github.com/ynsta/steamcontroller/blob/master/scripts/sc-desktop.py)
+This program is still highly experimental, and does not have much practical use at the moment,
+as it is not integrated with `sc-desktop.py` or similar standalone mouse drivers for the Steam
+Controller.
 
-## Notes
+#### What it does
 
-I've only tested from within a tiling window manager. I as the author, assume no liability for what you do with this program.
+- It's a virtual keyboard!
+
+#### What it doesn't (yet!) do
+
+- Integration with `sc-desktop.py`
+- Easy configuration by the user
+- Running as a daemon
+- Conjuring via the Steam Controller itself
+- Moving/scaling the keyboard with the controller
+- Alternate symbols
+- General user-friendliness

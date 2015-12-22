@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""Steam Controller On-Screen Keyboard - Proof of Concept"""
-
 from threading import Thread
 
 import sdl2
