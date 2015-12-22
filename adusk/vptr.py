@@ -1,4 +1,4 @@
-import state
+from adusk import state
 
 
 class VirtualPointer:

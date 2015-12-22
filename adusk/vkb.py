@@ -1,8 +1,8 @@
 import steamcontroller.uinput as sui
 
-import screen
-import state
-import utils
+from adusk import screen
+from adusk import state
+from adusk import utils
 
 kb = sui.Keyboard()
 

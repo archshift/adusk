@@ -2,10 +2,10 @@ from steamcontroller import SteamController, SCButtons, SCStatus
 from steamcontroller.events import EventMapper
 import steamcontroller.uinput as sui
 
-import screen
-import state
-import utils
-import vptr
+from adusk import screen
+from adusk import state
+from adusk import utils
+from adusk import vptr
 
 evm = None
 sc_input_previous = None

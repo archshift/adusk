@@ -4,8 +4,8 @@ import sdl2
 import sdl2.ext
 import sdl2.sdlgfx
 
-import state
-import utils
+from adusk import state
+from adusk import utils
 
 width = 640
 height = 320

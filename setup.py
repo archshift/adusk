@@ -1,14 +1,14 @@
 from distutils.core import setup
-from Cython.Build import cythonize
 
 setup(
     name='adusk',
     version='',
-    packages=[''],
-    url='',
+    packages=['adusk'],
+    scripts=['bin/adusk'],
+    url='https://github.com/archshift/adusk',
     license='GPL3',
     author='archshift',
     author_email='',
     description='',
-    ext_modules=cythonize(["adusk.py"]),
+    requires=['pysdl2'],
 )

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/env/python3
 # -*- coding: utf-8 -*-
 
 from threading import Thread
@@ -7,11 +7,11 @@ import sdl2
 import sdl2.ext
 import steamcontroller.uinput as sui
 
-import screen
-import controller
-import state
-import vkb
-import vptr
+from adusk import screen
+from adusk import controller
+from adusk import state
+from adusk import vkb
+from adusk import vptr
 
 virtual_kb = vkb.VirtualKeyboard([
     [
