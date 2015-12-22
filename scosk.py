@@ -29,12 +29,12 @@ def render_key(txt, x, y, w, h, key_state):
     else:
         pygame.draw.rect(screen, (0x19, 0x3d, 0x55), (x, y, w, h))
         
-    textSurf = pygame.font.SysFont("Sans", 20).render(txt, True, (255, 255, 255))
-    textRect = textSurf.get_rect(center=(x+(w//2), y+(h//2)))
-    screen.blit(textSurf, textRect)
+    text_surf = pygame.font.SysFont("Sans", 20).render(txt, True, (255, 255, 255))
+    text_rect = text_surf.get_rect(center=(x + w//2, y + h//2))
+    screen.blit(text_surf, text_rect)
 
 
-def render_vkb(virtual_kb, left_ptr, right_ptr):
+def render_vkb(virtual_kb, ptr_left, ptr_right):
     iterated_y = 0
 
     for i_row, row in enumerate(virtual_kb.keys):
@@ -47,18 +47,18 @@ def render_vkb(virtual_kb, left_ptr, right_ptr):
             adj_h = virtual_kb.key_height
 
             state = KeyState.INACTIVE
-            if left_ptr.in_box(adj_x, adj_y, adj_w, adj_h):
-                state = max(left_ptr.state, state)
-            if right_ptr.in_box(adj_x, adj_y, adj_w, adj_h):
-                state = max(right_ptr.state, state)
+            if ptr_left.in_box(adj_x, adj_y, adj_w, adj_h):
+                state = max(ptr_left.state, state)
+            if ptr_right.in_box(adj_x, adj_y, adj_w, adj_h):
+                state = max(ptr_right.state, state)
             render_key(key.str, adj_x, adj_y, adj_w, adj_h, state)
 
             iterated_x += adj_w + virtual_kb.padding * 2
 
         iterated_y += virtual_kb.key_height + virtual_kb.padding * 2
 
-    pygame.draw.circle(screen, (255, 128, 128), (left_ptr.x, left_ptr.y), left_ptr.get_radius(), 2)
-    pygame.draw.circle(screen, (128, 255, 128), (right_ptr.x, right_ptr.y), right_ptr.get_radius(), 2)
+    pygame.draw.circle(screen, (255, 128, 128), (ptr_left.x, ptr_left.y), ptr_left.get_radius(), 2)
+    pygame.draw.circle(screen, (128, 255, 128), (ptr_right.x, ptr_right.y), ptr_right.get_radius(), 2)
     pygame.display.update()
 
 
@@ -67,7 +67,8 @@ class KeyState(IntEnum):
     HOVER = 1
     CLICK = 2
 
-class KeyButton():
+
+class KeyButton:
     def __init__(self, str, keycode, callback, width_weight=1.0):
         self.str = str
         self.keycode = keycode
@@ -75,7 +76,7 @@ class KeyButton():
         self.width_weight = width_weight
 
 
-class VirtualKeyboard():
+class VirtualKeyboard:
     padding = 3
     key_width = []
     key_height = 0
@@ -118,7 +119,7 @@ class VirtualKeyboard():
         return None
 
 
-class VirtualPointer():
+class VirtualPointer:
     def __init__(self, state, x, y):
         self.state = state
         self.x = x
@@ -224,9 +225,17 @@ def evminit():
     evm.setButtonAction(SCButtons.RB, sui.Keys.KEY_SPACE)
     evm.setButtonAction(SCButtons.A, sui.Keys.KEY_ENTER)
     evm.setButtonCallback(SCButtons.B, exitCallback)
-    #evm.setPadButtonCallback(Pos.RIGHT, _)
-    #evm.setPadButtonCallback(Pos.LEFT, _)
     return evm
+
+
+def sc_adjust_x(raw_x, center_fraction, scalar=6/5):
+    abs_max = 0x20000
+    return round(screen_width * (center_fraction + scalar * raw_x/abs_max))
+
+
+def sc_adjust_y(raw_y, center_fraction, scalar=6/5):
+    abs_max = 0x10000
+    return round(screen_height * (center_fraction + scalar * -raw_y/abs_max))
 
 
 def update(sc, sc_input):
@@ -238,40 +247,38 @@ def update(sc, sc_input):
     evm.process(sc, sc_input)
     global sc_input_previous
 
-    lpx, lpy = (0x8000 + sc_input.lpad_x * 12 // 10) * screen_width // (0x1fffe), (0x8000 - sc_input.lpad_y * 12 // 10) * screen_height // (0xffff)
-    rpx, rpy = (0x18000 + sc_input.rpad_x * 12 // 10) * screen_width // (0x1fffe), (0x8000 - sc_input.rpad_y * 12 // 10) * screen_height // (0xffff)
+    pressed_right, pressed_left = False, False
 
-    left_pad_buttons = sc_input.buttons & (SCButtons.LPADTOUCH | SCButtons.LPAD)
-    right_pad_buttons = sc_input.buttons & (SCButtons.RPADTOUCH | SCButtons.RPAD)
+    ptr_left = VirtualPointer(KeyState.INACTIVE, sc_adjust_x(sc_input.lpad_x, 1/4),
+                              sc_adjust_y(sc_input.lpad_y, 1/2))
+    ptr_right = VirtualPointer(KeyState.INACTIVE, sc_adjust_x(sc_input.rpad_x, 3/4),
+                               sc_adjust_y(sc_input.rpad_y, 1/2))
 
-    right_pressed, left_pressed = False, False
+    key_left = virtual_kb.find_key(ptr_left.x, ptr_left.y)
+    key_right = virtual_kb.find_key(ptr_right.x, ptr_right.y)
 
-    left_ptr = VirtualPointer(KeyState.INACTIVE, lpx, lpy)
-    right_ptr = VirtualPointer(KeyState.INACTIVE, rpx, rpy)
+    if sc_input.buttons & SCButtons.RPADTOUCH:
+        if sc_input.buttons & SCButtons.RPAD:
+            ptr_right.state = KeyState.CLICK
+            # Handle click if previous buttons did not include both RPADTOUCH and RPAD
+            pressed_right = ~sc_input_previous.buttons & (SCButtons.RPADTOUCH | SCButtons.RPAD) != 0
+        else:
+            ptr_right.state = KeyState.HOVER
 
-    key_left = virtual_kb.find_key(lpx, lpy)
-    key_right = virtual_kb.find_key(rpx, rpy)
+    if sc_input.buttons & SCButtons.LPADTOUCH:
+        if sc_input.buttons & SCButtons.LPAD:
+            ptr_left.state = KeyState.CLICK
+            # Handle click if previous buttons did not include both LPADTOUCH and LPAD
+            pressed_left = ~sc_input_previous.buttons & (SCButtons.LPADTOUCH | SCButtons.LPAD) != 0
+        else:
+            ptr_left.state = KeyState.HOVER
 
-    if right_pad_buttons == SCButtons.RPADTOUCH:
-        right_ptr.state = KeyState.HOVER
-    elif right_pad_buttons == (SCButtons.RPADTOUCH | SCButtons.RPAD):
-        right_ptr.state = KeyState.CLICK
-        # Handle click if previous buttons did not include both RPADTOUCH and RPAD
-        right_pressed = ~sc_input_previous.buttons & (SCButtons.RPADTOUCH | SCButtons.RPAD) != 0
-
-    if left_pad_buttons == SCButtons.LPADTOUCH:
-        left_ptr.state = KeyState.HOVER
-    elif left_pad_buttons == (SCButtons.LPADTOUCH | SCButtons.LPAD):
-        left_ptr.state = KeyState.CLICK
-        # Handle click if previous buttons did not include both LPADTOUCH and LPAD
-        left_pressed = ~sc_input_previous.buttons & (SCButtons.LPADTOUCH | SCButtons.LPAD) != 0
-
-    if left_pressed and (key_left is not None):
+    if pressed_left and (key_left is not None):
         key_left.callback(key_left.keycode)
-    if right_pressed and (key_right is not None):
+    if pressed_right and (key_right is not None):
         key_left.callback(key_right.keycode)
 
-    render_vkb(virtual_kb, left_ptr, right_ptr)
+    render_vkb(virtual_kb, ptr_left, ptr_right)
 
     sc_input_previous = sc_input
 
