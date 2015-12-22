@@ -1,4 +1,4 @@
-import vkb
+import state
 
 
 class VirtualPointer:
@@ -8,11 +8,11 @@ class VirtualPointer:
         self.y = y
 
     def get_radius(self):
-        if self.state == vkb.KeyState.INACTIVE:
+        if self.state == state.InputState.INACTIVE:
             return 100
-        elif self.state == vkb.KeyState.HOVER:
+        elif self.state == state.InputState.HOVER:
             return 10
-        elif self.state == vkb.KeyState.CLICK:
+        elif self.state == state.InputState.CLICK:
             return 7
         else:
             assert "Invalid VirtualPointer state!"

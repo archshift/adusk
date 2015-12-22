@@ -1,14 +1,10 @@
-from enum import IntEnum
-import math
+import steamcontroller.uinput as sui
 
 import screen
+import state
 import utils
 
-
-class KeyState(IntEnum):
-    INACTIVE = 0
-    HOVER = 1
-    CLICK = 2
+kb = sui.Keyboard()
 
 
 class VirtualKeyboard:
@@ -60,3 +56,29 @@ class KeyButton:
         self.keycode = keycode
         self.callback = callback
         self.width_weight = width_weight
+
+
+def on_key_generic(virtual_kb, keycode):
+    kb.pressEvent([keycode])
+    kb.releaseEvent([keycode])
+
+
+def on_key_shift(virtual_kb, keycode):
+    return
+
+
+def on_key_alt(virtual_kb, keycode):
+    return
+
+
+def on_key_done(virtual_kb, keycode):
+    state.close()
+
+
+def callback_clicks(virtual_kb):
+    while len(state.gui_clicks) > 0:
+        x, y = state.gui_clicks.popleft()
+        key = virtual_kb.find_key(x, y)
+        if key is None:
+            continue
+        key.callback(virtual_kb, key.keycode)

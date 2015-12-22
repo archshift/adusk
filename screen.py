@@ -4,8 +4,8 @@ import sdl2
 import sdl2.ext
 import sdl2.sdlgfx
 
+import state
 import utils
-import vkb
 
 width = 640
 height = 320
@@ -13,12 +13,12 @@ height = 320
 
 class Screen:
     bg_color = sdl2.ext.Color(0x0f, 0x28, 0x3c)
-    text_color = (255, 255, 255)
+    text_color = sdl2.ext.Color(255, 255, 255)
 
     key_color = {
-        vkb.KeyState.INACTIVE: sdl2.ext.Color(0x19, 0x3d, 0x55),
-        vkb.KeyState.HOVER: sdl2.ext.Color(0x25, 0x5f, 0x7e),
-        vkb.KeyState.CLICK: sdl2.ext.Color(0x7b, 0xb8, 0xd8),
+        state.InputState.INACTIVE: sdl2.ext.Color(0x19, 0x3d, 0x55),
+        state.InputState.HOVER: sdl2.ext.Color(0x25, 0x5f, 0x7e),
+        state.InputState.CLICK: sdl2.ext.Color(0x7b, 0xb8, 0xd8),
     }
 
     ptr_color_left = sdl2.ext.Color(255, 128, 128)
@@ -48,7 +48,7 @@ class Screen:
         self.renderer.fill([(x, y, w, h)], color=self.key_color[key_state])
 
         key_center = (x + w//2, y + h//2)
-        text_surface = self.font_manager.render(txt)
+        text_surface = self.font_manager.render(txt, color=self.text_color)
         text_texture = sdl2.SDL_CreateTextureFromSurface(self.renderer.renderer, ctypes.byref(text_surface))
         src_rect = (text_surface.clip_rect.x, text_surface.clip_rect.y,
                     text_surface.clip_rect.w, text_surface.clip_rect.h)
@@ -60,7 +60,7 @@ class Screen:
         sdl2.sdlgfx.aacircleRGBA(self.renderer.renderer, ptr.x, ptr.y, ptr.get_radius(),
                                  color.r, color.g, color.b, color.a)
 
-    def render_vkb(self, virtual_kb, ptr_left, ptr_right):
+    def render_vkb(self, virtual_kb, ptr_state):
         iterated_y = 0
 
         for i_row, row in enumerate(virtual_kb.keys):
@@ -72,21 +72,21 @@ class Screen:
                 adj_w = key.width_weight * virtual_kb.key_width[i_row]
                 adj_h = virtual_kb.key_height
 
-                state = vkb.KeyState.INACTIVE
-                if ptr_left.in_box(adj_x, adj_y, adj_w, adj_h):
-                    state = max(ptr_left.state, state)
-                if ptr_right.in_box(adj_x, adj_y, adj_w, adj_h):
-                    state = max(ptr_right.state, state)
-                self.render_key(key.str, adj_x, adj_y, adj_w, adj_h, state)
+                input_state = state.InputState.INACTIVE
+                if ptr_state.ptr_left.in_box(adj_x, adj_y, adj_w, adj_h):
+                    input_state = max(ptr_state.ptr_left.state, input_state)
+                if ptr_state.ptr_right.in_box(adj_x, adj_y, adj_w, adj_h):
+                    input_state = max(ptr_state.ptr_right.state, input_state)
+                self.render_key(key.str, adj_x, adj_y, adj_w, adj_h, input_state)
 
                 iterated_x += adj_w + virtual_kb.padding * 2
 
             iterated_y += virtual_kb.key_height + virtual_kb.padding * 2
 
-    def render(self, gui_state):
+    def render(self, virtual_kb, ptr_state):
         self.clear()
-        self.render_vkb(gui_state.virtual_kb, gui_state.ptr_left, gui_state.ptr_right)
-        self.render_ptr(gui_state.ptr_left, self.ptr_color_left)
-        self.render_ptr(gui_state.ptr_right, self.ptr_color_right)
+        self.render_vkb(virtual_kb, ptr_state)
+        self.render_ptr(ptr_state.ptr_left, self.ptr_color_left)
+        self.render_ptr(ptr_state.ptr_right, self.ptr_color_right)
         self.renderer.present()
         self.window.refresh()

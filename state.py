@@ -1,4 +1,5 @@
-from collections import namedtuple
+from collections import namedtuple, deque
+from enum import IntEnum
 from threading import Lock
 
 should_exit = False
@@ -20,21 +21,30 @@ def should_close():
     return ret
 
 
-GuiState = namedtuple("GuiState", "virtual_kb, ptr_left, ptr_right")
-gui_state = None
-gui_state_lock = Lock()
+class InputState(IntEnum):
+    INACTIVE = 0
+    HOVER = 1
+    CLICK = 2
 
 
-def submit_gui_state(_gui_state):
-    global gui_state
-    gui_state_lock.acquire()
-    gui_state = _gui_state
-    gui_state_lock.release()
+PtrState = namedtuple("PtrState", "ptr_left, ptr_right")
+ptr_state = None
+ptr_state_lock = Lock()
 
 
-def get_gui_state():
-    global gui_state
-    gui_state_lock.acquire()
-    ret = gui_state
-    gui_state_lock.release()
+def submit_ptr_state(_gui_state):
+    global ptr_state
+    ptr_state_lock.acquire()
+    ptr_state = _gui_state
+    ptr_state_lock.release()
+
+
+def get_ptr_state():
+    global ptr_state
+    ptr_state_lock.acquire()
+    ret = ptr_state
+    ptr_state_lock.release()
     return ret
+
+
+gui_clicks = deque()
