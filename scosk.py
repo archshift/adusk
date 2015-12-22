@@ -3,10 +3,10 @@
 
 """Steam Controller On-Screen Keyboard - Proof of Concept"""
 
-import pygame
-
-import sys
 from threading import Thread
+
+import sdl2
+import sdl2.ext
 
 import screen
 import scinput
@@ -24,20 +24,19 @@ def main():
     sc_thread = Thread(target=scinput.input_thread, daemon=True)
     sc_thread.start()
 
-    pygame.init()
+    sdl2.ext.init()
     scr = screen.Screen()
 
-    while 1:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return
+    while not state.should_close():
+        for event in sdl2.ext.get_events():
+            if event.type == sdl2.SDL_QUIT:
+                state.close()
+                break
 
-        if state.should_close():
-            return
+        scr.render(state.get_gui_state())
+        scr.delay()
 
-        gui_state = state.get_gui_state()
-        scr.render_vkb(gui_state.virtual_kb, gui_state.ptr_left, gui_state.ptr_right)
-        pygame.display.flip()
+    sdl2.ext.quit()
 
 
 if __name__ == '__main__':

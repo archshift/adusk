@@ -39,7 +39,7 @@ class VirtualKeyboard:
             self.key_width.append(self._uniform_key_width(i))
 
     def find_key_row(self, y_coord):
-        return math.floor(y_coord / (self.key_height + self.padding * 2))
+        return int(y_coord / (self.key_height + self.padding * 2))
 
     def find_key(self, x_coord, y_coord):
         i_row = self.find_key_row(y_coord)

@@ -1,6 +1,10 @@
-import pygame
-import pygame.freetype
+import ctypes
 
+import sdl2
+import sdl2.ext
+import sdl2.sdlgfx
+
+import utils
 import vkb
 
 width = 640
@@ -8,38 +12,55 @@ height = 320
 
 
 class Screen:
-    bg_color = (0x0f, 0x28, 0x3c)
+    bg_color = sdl2.ext.Color(0x0f, 0x28, 0x3c)
     text_color = (255, 255, 255)
 
     key_color = {
-        vkb.KeyState.INACTIVE: (0x19, 0x3d, 0x55),
-        vkb.KeyState.HOVER: (0x25, 0x5f, 0x7e),
-        vkb.KeyState.CLICK: (0x7b, 0xb8, 0xd8),
+        vkb.KeyState.INACTIVE: sdl2.ext.Color(0x19, 0x3d, 0x55),
+        vkb.KeyState.HOVER: sdl2.ext.Color(0x25, 0x5f, 0x7e),
+        vkb.KeyState.CLICK: sdl2.ext.Color(0x7b, 0xb8, 0xd8),
     }
 
-    ptr_color_left = (255, 128, 128)
-    ptr_color_right = (128, 255, 128)
+    ptr_color_left = sdl2.ext.Color(255, 128, 128)
+    ptr_color_right = sdl2.ext.Color(128, 255, 128)
 
     def __init__(self):
-        self.text_font = pygame.freetype.SysFont("Sans", 18)
-        self.surface = pygame.display.set_mode((width, height))
+        self.window = sdl2.ext.Window("", (width, height), flags=sdl2.SDL_WINDOW_BORDERLESS)
+        self.renderer = sdl2.ext.Renderer(self.window)
+        self.font_manager = sdl2.ext.FontManager("/usr/share/fonts/ttf-dejavu-ib/DejaVuSans.ttf")
+
+        self.frame_rate_manager = sdl2.sdlgfx.FPSManager()
+        sdl2.sdlgfx.SDL_initFramerate(ctypes.byref(self.frame_rate_manager))
+        sdl2.sdlgfx.SDL_setFramerate(ctypes.byref(self.frame_rate_manager), 60)
+
         self.clear()
+        self.window.show()
 
     def clear(self):
-        self.surface.fill(self.bg_color)
+        self.renderer.clear(color=self.bg_color)
+
+    def delay(self):
+        sdl2.sdlgfx.SDL_framerateDelay(ctypes.byref(self.frame_rate_manager))
 
     def render_key(self, txt, x, y, w, h, key_state):
-        pygame.draw.rect(self.surface, self.key_color[key_state], (x, y, w, h))
-        text_surf = self.text_font.render(txt, self.text_color)[0]
-        text_rect = text_surf.get_rect(center=(x + w//2, y + h//2))
-        self.surface.blit(text_surf, text_rect)
+        x, y = utils.round_to_int(x), utils.round_to_int(y)
+        w, h = utils.round_to_int(w), utils.round_to_int(h)
+        self.renderer.fill([(x, y, w, h)], color=self.key_color[key_state])
 
-    def render_ptrs(self, ptr_left, ptr_right):
-        pygame.draw.circle(self.surface, self.ptr_color_left, (ptr_left.x, ptr_left.y), ptr_left.get_radius(), 2)
-        pygame.draw.circle(self.surface, self.ptr_color_right, (ptr_right.x, ptr_right.y), ptr_right.get_radius(), 2)
+        key_center = (x + w//2, y + h//2)
+        text_surface = self.font_manager.render(txt)
+        text_texture = sdl2.SDL_CreateTextureFromSurface(self.renderer.renderer, ctypes.byref(text_surface))
+        src_rect = (text_surface.clip_rect.x, text_surface.clip_rect.y,
+                    text_surface.clip_rect.w, text_surface.clip_rect.h)
+        dst_rect = (key_center[0] - text_surface.clip_rect.w//2, key_center[1] - text_surface.clip_rect.h//2,
+                    text_surface.clip_rect.w, text_surface.clip_rect.h)
+        self.renderer.copy(text_texture[0], src_rect, dst_rect)
+
+    def render_ptr(self, ptr, color):
+        sdl2.sdlgfx.aacircleRGBA(self.renderer.renderer, ptr.x, ptr.y, ptr.get_radius(),
+                                 color.r, color.g, color.b, color.a)
 
     def render_vkb(self, virtual_kb, ptr_left, ptr_right):
-        self.clear()
         iterated_y = 0
 
         for i_row, row in enumerate(virtual_kb.keys):
@@ -62,5 +83,10 @@ class Screen:
 
             iterated_y += virtual_kb.key_height + virtual_kb.padding * 2
 
-        self.render_ptrs(ptr_left, ptr_right)
-        pygame.display.update()
+    def render(self, gui_state):
+        self.clear()
+        self.render_vkb(gui_state.virtual_kb, gui_state.ptr_left, gui_state.ptr_right)
+        self.render_ptr(gui_state.ptr_left, self.ptr_color_left)
+        self.render_ptr(gui_state.ptr_right, self.ptr_color_right)
+        self.renderer.present()
+        self.window.refresh()

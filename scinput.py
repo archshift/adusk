@@ -4,6 +4,7 @@ import steamcontroller.uinput as sui
 
 import screen
 import state
+import utils
 import vkb
 import vptr
 
@@ -46,12 +47,12 @@ def create_event_mapper():
 
 def adjust_raw_x(raw_x, center_fraction, scalar=6 / 5):
     abs_max = 0x20000
-    return round(screen.width * (center_fraction + scalar * raw_x/abs_max))
+    return utils.round_to_int(screen.width * (center_fraction + scalar * raw_x/abs_max))
 
 
 def adjust_raw_y(raw_y, center_fraction, scalar=6 / 5):
     abs_max = 0x10000
-    return round(screen.height * (center_fraction + scalar * -raw_y/abs_max))
+    return utils.round_to_int(screen.height * (center_fraction + scalar * -raw_y/abs_max))
 
 
 def update(sc, sc_input):
