@@ -93,10 +93,12 @@ def main():
             if event.type == sdl2.SDL_QUIT:
                 state.close()
                 break
-            if event.type == sdl2.SDL_WINDOWEVENT_RESIZED:
-                screen.width = event.window.data1
-                screen.height = event.window.data2
+            if event.type == sdl2.SDL_WINDOWEVENT:
+                if event.window.event == sdl2.SDL_WINDOWEVENT_RESIZED:
+                    screen.width = event.window.data1
+                    screen.height = event.window.data2
 
+        virtual_kb.update_dimensions()
         vkb.callback_clicks(virtual_kb)
         scr.render(virtual_kb, state.get_ptr_state())
         scr.delay()

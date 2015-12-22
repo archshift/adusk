@@ -26,12 +26,12 @@ def create_event_mapper():
     evm.setButtonCallback(SCButtons.B, on_button_exit)
 
 
-def adjust_raw_x(raw_x, center_fraction, scalar=6 / 5):
+def adjust_raw_x(raw_x, center_fraction, scalar=6/5):
     abs_max = 0x20000
     return utils.round_to_int(screen.width * (center_fraction + scalar * raw_x/abs_max))
 
 
-def adjust_raw_y(raw_y, center_fraction, scalar=6 / 5):
+def adjust_raw_y(raw_y, center_fraction, scalar=6/5):
     abs_max = 0x10000
     return utils.round_to_int(screen.height * (center_fraction + scalar * -raw_y/abs_max))
 
