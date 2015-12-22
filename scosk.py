@@ -3,10 +3,14 @@
 
 """Steam Controller On-Screen Keyboard - Proof of Concept"""
 
+import pygame
 from steamcontroller import *
-import steamcontroller.uinput as sui 
+import steamcontroller.uinput as sui
 from steamcontroller.events import EventMapper, Pos
+
 import sys
+from threading import Thread
+from threading import Lock
 
 import screen
 import vkb
@@ -14,11 +18,20 @@ import vptr
 
 sc_input_previous = SCI_NULL
 kb = sui.Keyboard()
-scr = screen.Screen()
+scr = None
+
+sc_ptr_left, sc_ptr_right = None, None
+sc_ptr_lock = Lock()
 
 
 def close():
-    sys.exit()
+    global should_exit
+    should_exit_lock.acquire()
+    should_exit = True
+    should_exit_lock.release()
+
+should_exit = False
+should_exit_lock = Lock()
 
 
 def on_generic_press(virtual_kb, keycode):
@@ -125,6 +138,8 @@ def sc_adjust_y(raw_y, center_fraction, scalar=6/5):
 
 def update(sc, sc_input):
     global sc_input_previous
+    global sc_ptr_left
+    global sc_ptr_right
 
     if sc_input.status != SCStatus.INPUT:
         return
@@ -166,12 +181,53 @@ def update(sc, sc_input):
     if pressed_right and (key_right is not None):
         key_right.callback(virtual_kb, key_right.keycode)
 
-    scr.render_vkb(virtual_kb, ptr_left, ptr_right)
-
     sc_input_previous = sc_input
 
+    sc_ptr_lock.acquire()
+    sc_ptr_left = ptr_left
+    sc_ptr_right = ptr_right
+    sc_ptr_lock.release()
 
-if __name__ == '__main__':
+
+def handle_sc():
+    global evm
     evm = evminit()
     sc = SteamController(callback=update)
     sc.run()
+
+
+def main():
+    global scr
+    global sc_ptr_left
+    global sc_ptr_right
+
+    sc_ptr_left = vptr.VirtualPointer(vkb.KeyState.INACTIVE, screen.width * 1//4, screen.height // 2)
+    sc_ptr_right = vptr.VirtualPointer(vkb.KeyState.INACTIVE, screen.width * 3//4, screen.height // 2)
+
+    sc_thread = Thread(target=handle_sc, daemon=True)
+    sc_thread.start()
+
+    pygame.init()
+    scr = screen.Screen()
+
+    while 1:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
+
+        should_exit_lock.acquire()
+        if should_exit:
+            return
+        should_exit_lock.release()
+
+        sc_ptr_lock.acquire()
+        ptr_left = sc_ptr_left
+        ptr_right = sc_ptr_right
+        sc_ptr_lock.release()
+
+        scr.render_vkb(virtual_kb, ptr_left, ptr_right)
+        pygame.display.flip()
+
+
+if __name__ == '__main__':
+    main()

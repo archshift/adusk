@@ -21,7 +21,6 @@ class Screen:
     ptr_color_right = (128, 255, 128)
 
     def __init__(self):
-        pygame.init()
         self.text_font = pygame.freetype.SysFont("Sans", 18)
         self.surface = pygame.display.set_mode((width, height))
         self.clear()
