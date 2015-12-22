@@ -10,5 +10,5 @@ setup(
     author='archshift',
     author_email='',
     description='',
-    ext_modules=cythonize("scosk.py"),
+    ext_modules=cythonize(["scosk.py"]),
 )
