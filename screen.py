@@ -49,12 +49,15 @@ class Screen:
 
         key_center = (x + w//2, y + h//2)
         text_surface = self.font_manager.render(txt, color=self.text_color)
-        text_texture = sdl2.SDL_CreateTextureFromSurface(self.renderer.renderer, ctypes.byref(text_surface))
+        text_texture_p = sdl2.SDL_CreateTextureFromSurface(self.renderer.renderer, ctypes.byref(text_surface))
+        sdl2.SDL_FreeSurface(ctypes.byref(text_surface))
+
         src_rect = (text_surface.clip_rect.x, text_surface.clip_rect.y,
                     text_surface.clip_rect.w, text_surface.clip_rect.h)
         dst_rect = (key_center[0] - text_surface.clip_rect.w//2, key_center[1] - text_surface.clip_rect.h//2,
                     text_surface.clip_rect.w, text_surface.clip_rect.h)
-        self.renderer.copy(text_texture[0], src_rect, dst_rect)
+        self.renderer.copy(text_texture_p[0], src_rect, dst_rect)
+        sdl2.SDL_DestroyTexture(text_texture_p)
 
     def render_ptr(self, ptr, color):
         sdl2.sdlgfx.aacircleRGBA(self.renderer.renderer, ptr.x, ptr.y, ptr.get_radius(),
