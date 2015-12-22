@@ -1,4 +1,5 @@
 import pygame
+import pygame.freetype
 
 import vkb
 
@@ -21,6 +22,7 @@ class Screen:
 
     def __init__(self):
         pygame.init()
+        self.text_font = pygame.freetype.SysFont("Sans", 18)
         self.surface = pygame.display.set_mode((width, height))
         self.clear()
 
@@ -29,7 +31,7 @@ class Screen:
 
     def render_key(self, txt, x, y, w, h, key_state):
         pygame.draw.rect(self.surface, self.key_color[key_state], (x, y, w, h))
-        text_surf = pygame.font.SysFont("Sans", 20).render(txt, True, self.text_color)
+        text_surf = self.text_font.render(txt, self.text_color)[0]
         text_rect = text_surf.get_rect(center=(x + w//2, y + h//2))
         self.surface.blit(text_surf, text_rect)
 

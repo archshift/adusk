@@ -50,7 +50,7 @@ virtual_kb = vkb.VirtualKeyboard([
         vkb.KeyButton('9', sui.Keys.KEY_9, on_generic_press),
         vkb.KeyButton('0', sui.Keys.KEY_0, on_generic_press),
         vkb.KeyButton('-', sui.Keys.KEY_MINUS, on_generic_press),
-        vkb.KeyButton('←', sui.Keys.KEY_BACKSPACE, on_generic_press),
+        vkb.KeyButton('\u2190', sui.Keys.KEY_BACKSPACE, on_generic_press),
     ], [
         vkb.KeyButton('q', sui.Keys.KEY_Q, on_generic_press),
         vkb.KeyButton('w', sui.Keys.KEY_W, on_generic_press),
@@ -76,9 +76,9 @@ virtual_kb = vkb.VirtualKeyboard([
         vkb.KeyButton('l', sui.Keys.KEY_L, on_generic_press),
         vkb.KeyButton(';', sui.Keys.KEY_SEMICOLON, on_generic_press),
         vkb.KeyButton('\'', sui.Keys.KEY_APOSTROPHE, on_generic_press),
-        vkb.KeyButton('↵', sui.Keys.KEY_ENTER, on_generic_press, 1.7),
+        vkb.KeyButton('\u21B5', sui.Keys.KEY_ENTER, on_generic_press, 1.7),
     ], [
-        vkb.KeyButton('↑', sui.Keys.KEY_LEFTSHIFT, on_shift_press, 1.2),
+        vkb.KeyButton('\u2191', sui.Keys.KEY_LEFTSHIFT, on_shift_press, 1.2),
         vkb.KeyButton('z', sui.Keys.KEY_Z, on_generic_press),
         vkb.KeyButton('x', sui.Keys.KEY_X, on_generic_press),
         vkb.KeyButton('c', sui.Keys.KEY_C, on_generic_press),
@@ -90,7 +90,7 @@ virtual_kb = vkb.VirtualKeyboard([
         vkb.KeyButton('.', sui.Keys.KEY_DOT, on_generic_press),
         vkb.KeyButton('/', sui.Keys.KEY_SLASH, on_generic_press),
         vkb.KeyButton('?', sui.Keys.KEY_QUESTION, on_generic_press),
-        vkb.KeyButton('↑', sui.Keys.KEY_RIGHTSHIFT, on_shift_press, 1.2),
+        vkb.KeyButton('\u2191', sui.Keys.KEY_RIGHTSHIFT, on_shift_press, 1.2),
     ], [
         vkb.KeyButton(' ', sui.Keys.KEY_SPACE, on_generic_press),
         vkb.KeyButton('Done', 0, on_done_press, 0.3),
@@ -146,18 +146,18 @@ def update(sc, sc_input):
     key_right = virtual_kb.find_key(ptr_right.x, ptr_right.y)
 
     if sc_input.buttons & SCButtons.RPADTOUCH:
-        if sc_input.buttons & SCButtons.RPAD:
+        if sc_input.buttons & SCButtons.RT:
             ptr_right.state = vkb.KeyState.CLICK
-            # Handle click if previous buttons did not include both RPADTOUCH and RPAD
-            pressed_right = ~sc_input_previous.buttons & (SCButtons.RPADTOUCH | SCButtons.RPAD) != 0
+            # Handle click if previous buttons did not include both RPADTOUCH and RT
+            pressed_right = ~sc_input_previous.buttons & (SCButtons.RPADTOUCH | SCButtons.RT) != 0
         else:
             ptr_right.state = vkb.KeyState.HOVER
 
     if sc_input.buttons & SCButtons.LPADTOUCH:
-        if sc_input.buttons & SCButtons.LPAD:
+        if sc_input.buttons & SCButtons.LT:
             ptr_left.state = vkb.KeyState.CLICK
-            # Handle click if previous buttons did not include both LPADTOUCH and LPAD
-            pressed_left = ~sc_input_previous.buttons & (SCButtons.LPADTOUCH | SCButtons.LPAD) != 0
+            # Handle click if previous buttons did not include both LPADTOUCH and LT
+            pressed_left = ~sc_input_previous.buttons & (SCButtons.LPADTOUCH | SCButtons.LT) != 0
         else:
             ptr_left.state = vkb.KeyState.HOVER
 
