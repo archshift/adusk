@@ -11,6 +11,23 @@ width = 640
 height = 320
 
 
+class CoordFraction:
+    @staticmethod
+    def from_absolute(x, y):
+        return CoordFraction(x / width, y / height)
+
+    def __init__(self, x_fraction, y_fraction):
+        self.x_fraction = x_fraction
+        self.y_fraction = y_fraction
+
+    def to_absolute(self):
+        return self.x_fraction * width, self.y_fraction * height
+
+    def update_absolute(self, x, y):
+        self.x_fraction = x / width
+        self.y_fraction = y / height
+
+
 class Screen:
     bg_color = sdl2.ext.Color(0x0f, 0x28, 0x3c)
     text_color = sdl2.ext.Color(255, 255, 255)
@@ -60,8 +77,9 @@ class Screen:
         sdl2.SDL_DestroyTexture(text_texture_p)
 
     def render_ptr(self, ptr, color):
-        sdl2.sdlgfx.aacircleRGBA(self.renderer.renderer, ptr.x, ptr.y, ptr.get_radius(),
-                                 color.r, color.g, color.b, color.a)
+        ptr_x, ptr_y = ptr.coord_frac.to_absolute()
+        sdl2.sdlgfx.aacircleRGBA(self.renderer.renderer, utils.round_to_int(ptr_x), utils.round_to_int(ptr_y),
+                                 ptr.get_radius(), color.r, color.g, color.b, color.a)
 
     def render_vkb(self, virtual_kb, pointers):
         iterated_y = 0

@@ -8,6 +8,7 @@ import sdl2.ext
 import steamcontroller.uinput as sui
 
 from adusk import screen
+from adusk.screen import CoordFraction
 from adusk import controller
 from adusk import state
 from adusk import vkb
@@ -77,8 +78,8 @@ virtual_kb = vkb.VirtualKeyboard([
 def main():
     controller_state = controller.ControllerState()
     controller_state.set_pointers(
-            vptr.VirtualPointer(state.InputState.INACTIVE, screen.width * 1 // 4, screen.height // 2),
-            vptr.VirtualPointer(state.InputState.INACTIVE, screen.width * 3 // 4, screen.height // 2)
+            vptr.VirtualPointer(state.InputState.INACTIVE, CoordFraction(1/4, 1/2)),
+            vptr.VirtualPointer(state.InputState.INACTIVE, CoordFraction(3/4, 1/2))
     )
 
     sc_thread = Thread(target=controller.input_thread, args=(controller_state,), daemon=True)

@@ -77,7 +77,7 @@ def on_key_done(virtual_kb, keycode):
 
 def process_click_queue(virtual_kb, queue):
     while len(queue) > 0:
-        x, y = queue.popleft()
+        x, y = queue.popleft().to_absolute()
         key = virtual_kb.find_key(x, y)
         if key is None:
             continue
