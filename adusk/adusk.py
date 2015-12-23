@@ -75,11 +75,13 @@ virtual_kb = vkb.VirtualKeyboard([
 
 
 def main():
-    default_ptr_left = vptr.VirtualPointer(state.InputState.INACTIVE, screen.width * 1 // 4, screen.height // 2)
-    default_ptr_right = vptr.VirtualPointer(state.InputState.INACTIVE, screen.width * 3 // 4, screen.height // 2)
-    state.submit_ptr_state(default_ptr_left, default_ptr_right)
+    controller_state = controller.ControllerState()
+    controller_state.set_pointers(
+            vptr.VirtualPointer(state.InputState.INACTIVE, screen.width * 1 // 4, screen.height // 2),
+            vptr.VirtualPointer(state.InputState.INACTIVE, screen.width * 3 // 4, screen.height // 2)
+    )
 
-    sc_thread = Thread(target=controller.input_thread, daemon=True)
+    sc_thread = Thread(target=controller.input_thread, args=(controller_state,), daemon=True)
     sc_thread.start()
 
     sdl2.ext.init()
@@ -96,8 +98,8 @@ def main():
                     screen.height = event.window.data2
 
         virtual_kb.update_dimensions()
-        vkb.callback_clicks(virtual_kb)
-        scr.render(virtual_kb, state.get_ptr_state())
+        vkb.process_click_queue(virtual_kb, controller_state.click_queue)
+        scr.render(virtual_kb, controller_state.get_pointers())
         scr.delay()
 
     sdl2.ext.quit()

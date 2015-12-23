@@ -1,13 +1,31 @@
+import copy
+from collections import deque
+from threading import Lock
+
+import steamcontroller.uinput as sui
 from steamcontroller import SteamController, SCButtons, SCStatus, SCI_NULL
 from steamcontroller.events import EventMapper
-import steamcontroller.uinput as sui
 
 from adusk import screen
 from adusk import state
 from adusk import utils
 from adusk import vptr
 
-import copy
+
+class ControllerState:
+    click_queue = deque()
+
+    _pointers = None
+    _pointer_lock = Lock()
+
+    def set_pointers(self, ptr_left, ptr_right):
+        with self._pointer_lock:
+            self._pointers = (ptr_left, ptr_right)
+
+    def get_pointers(self):
+        with self._pointer_lock:
+            ret = copy.deepcopy(self._pointers)
+        return ret
 
 
 def on_button_exit(evm, button, pressed):
@@ -29,8 +47,10 @@ class ControllerManager:
     pad_smoothing = 0.15
     sc_input_previous = SCI_NULL
 
-    def __init__(self):
-        prev_ptrs = state.get_ptr_state()
+    def __init__(self, controller_state):
+        self.controller_state = controller_state
+
+        prev_ptrs = controller_state.get_pointers()
         self.prev_ptr_left = prev_ptrs[0]
         self.prev_ptr_right = prev_ptrs[1]
 
@@ -49,7 +69,7 @@ class ControllerManager:
             if buttons & select_button_mask:
                 # Handle click if previous buttons did not include both `touch_button` and `select_button`
                 if ~self.sc_input_previous.buttons & (touch_button_mask | select_button_mask) != 0:
-                    state.gui_clicks.append((x, y))
+                    self.controller_state.click_queue.append((x, y))
                 return state.InputState.CLICK
             else:
                 return state.InputState.HOVER
@@ -79,7 +99,7 @@ class ControllerManager:
         self.prev_ptr_right = copy.deepcopy(ptr_right)
         self.sc_input_previous = sc_input
 
-        state.submit_ptr_state(ptr_left, ptr_right)
+        self.controller_state.set_pointers(ptr_left, ptr_right)
 
 
 def update(sc, sc_input, manager):
@@ -88,7 +108,7 @@ def update(sc, sc_input, manager):
     manager.handle_input(sc, sc_input)
 
 
-def input_thread():
-    manager = ControllerManager()
-    sc = SteamController(callback=update, callback_args=[manager])
+def input_thread(controller_state):
+    manager = ControllerManager(controller_state)
+    sc = SteamController(callback=update, callback_args=(manager,))
     sc.run()

@@ -1,5 +1,3 @@
-import copy
-from collections import namedtuple, deque
 from enum import IntEnum
 from threading import Lock
 
@@ -24,22 +22,3 @@ class InputState(IntEnum):
     INACTIVE = 0
     HOVER = 1
     CLICK = 2
-
-ptrs = None
-ptrs_lock = Lock()
-
-
-def submit_ptr_state(ptr_left, ptr_right):
-    global ptrs
-    with ptrs_lock:
-        ptrs = (ptr_left, ptr_right)
-
-
-def get_ptr_state():
-    global ptrs
-    with ptrs_lock:
-        ret = copy.deepcopy(ptrs)
-    return ret
-
-
-gui_clicks = deque()

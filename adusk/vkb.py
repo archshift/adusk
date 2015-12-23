@@ -75,9 +75,9 @@ def on_key_done(virtual_kb, keycode):
     state.close()
 
 
-def callback_clicks(virtual_kb):
-    while len(state.gui_clicks) > 0:
-        x, y = state.gui_clicks.popleft()
+def process_click_queue(virtual_kb, queue):
+    while len(queue) > 0:
+        x, y = queue.popleft()
         key = virtual_kb.find_key(x, y)
         if key is None:
             continue
