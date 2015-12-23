@@ -63,7 +63,7 @@ class Screen:
         sdl2.sdlgfx.aacircleRGBA(self.renderer.renderer, ptr.x, ptr.y, ptr.get_radius(),
                                  color.r, color.g, color.b, color.a)
 
-    def render_vkb(self, virtual_kb, ptr_state):
+    def render_vkb(self, virtual_kb, pointers):
         iterated_y = 0
 
         for i_row, row in enumerate(virtual_kb.keys):
@@ -76,20 +76,20 @@ class Screen:
                 adj_h = virtual_kb.key_height
 
                 input_state = state.InputState.INACTIVE
-                if ptr_state.ptr_left.in_box(adj_x, adj_y, adj_w, adj_h):
-                    input_state = max(ptr_state.ptr_left.state, input_state)
-                if ptr_state.ptr_right.in_box(adj_x, adj_y, adj_w, adj_h):
-                    input_state = max(ptr_state.ptr_right.state, input_state)
+                if pointers[0].in_box(adj_x, adj_y, adj_w, adj_h):
+                    input_state = max(pointers[0].state, input_state)
+                if pointers[1].in_box(adj_x, adj_y, adj_w, adj_h):
+                    input_state = max(pointers[1].state, input_state)
                 self.render_key(key.str, adj_x, adj_y, adj_w, adj_h, input_state)
 
                 iterated_x += adj_w + virtual_kb.padding * 2
 
             iterated_y += virtual_kb.key_height + virtual_kb.padding * 2
 
-    def render(self, virtual_kb, ptr_state):
+    def render(self, virtual_kb, pointers):
         self.clear()
-        self.render_vkb(virtual_kb, ptr_state)
-        self.render_ptr(ptr_state.ptr_left, self.ptr_color_left)
-        self.render_ptr(ptr_state.ptr_right, self.ptr_color_right)
+        self.render_vkb(virtual_kb, pointers)
+        self.render_ptr(pointers[0], self.ptr_color_left)
+        self.render_ptr(pointers[1], self.ptr_color_right)
         self.renderer.present()
         self.window.refresh()

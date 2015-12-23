@@ -1,4 +1,5 @@
 from adusk import state
+from adusk import utils
 
 
 class VirtualPointer:
@@ -19,3 +20,7 @@ class VirtualPointer:
 
     def in_box(self, bx, by, bw, bh):
         return self.x >= bx and self.y >= by and self.x <= bx + bw and self.y <= by + bh
+
+    def smoothen(self, prev_vptr, alpha):
+        self.x = utils.round_to_int(utils.compute_lowpass(self.x, prev_vptr.x, alpha))
+        self.y = utils.round_to_int(utils.compute_lowpass(self.y, prev_vptr.y, alpha))

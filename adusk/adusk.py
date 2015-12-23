@@ -77,9 +77,8 @@ virtual_kb = vkb.VirtualKeyboard([
 def main():
     default_ptr_left = vptr.VirtualPointer(state.InputState.INACTIVE, screen.width * 1 // 4, screen.height // 2)
     default_ptr_right = vptr.VirtualPointer(state.InputState.INACTIVE, screen.width * 3 // 4, screen.height // 2)
-    state.submit_ptr_state(state.PtrState(default_ptr_left, default_ptr_right))
+    state.submit_ptr_state(default_ptr_left, default_ptr_right)
 
-    controller.create_event_mapper()
     sc_thread = Thread(target=controller.input_thread, daemon=True)
     sc_thread.start()
 
