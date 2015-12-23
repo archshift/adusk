@@ -9,12 +9,6 @@ Forked from [NOTtheMessiah/scosk](https://github.com/NOTtheMessiah/scosk)
 * [PySDL2](http://http://pysdl2.readthedocs.org)
 * [Standalone Steam Controller Driver](https://github.com/ynsta/steamcontroller)
 
-## Usage
-
-```
-python3 adusk.py
-```
-
 ## About
 
 adusk aims to provide a standalone virtual keyboard for use with the Steam Controller; going above
@@ -24,6 +18,18 @@ by the need to have Steam perpetually running in the background.
 This program is still highly experimental, and does not have much practical use at the moment,
 as it is not integrated with `sc-desktop.py` or similar standalone mouse drivers for the Steam
 Controller.
+
+#### Installation
+
+```
+python3 setup.py install
+```
+
+#### Usage
+
+```
+adusk
+```
 
 #### What it does
 
