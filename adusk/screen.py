@@ -4,6 +4,7 @@ import sdl2
 import sdl2.ext
 import sdl2.sdlgfx
 
+from adusk import resources
 from adusk import state
 from adusk import utils
 
@@ -44,7 +45,12 @@ class Screen:
     def __init__(self):
         self.window = sdl2.ext.Window("", (width, height), flags=sdl2.SDL_WINDOW_BORDERLESS)
         self.renderer = sdl2.ext.Renderer(self.window)
-        self.font_manager = sdl2.ext.FontManager("/usr/share/fonts/ttf-dejavu-ib/DejaVuSans.ttf")
+
+        font_name = "fonts/DejaVuSansCondensed-Bold.ttf"
+        font_path = resources.find_data_resource(font_name)
+        assert font_path is not None, "Could not find font file `{}`!".format(font_name)
+        print("Found font file at `{}`".format(font_path))
+        self.font_manager = sdl2.ext.FontManager(font_path)
 
         self.frame_rate_manager = sdl2.sdlgfx.FPSManager()
         sdl2.sdlgfx.SDL_initFramerate(ctypes.byref(self.frame_rate_manager))
