@@ -31,6 +31,28 @@ python3 setup.py install
 adusk
 ```
 
+#### Configuration
+
+By default, adusk will look for data/configuration files in the following
+locations (in order of descending priority):
+
+**Environment-specified paths:**
+
+- `$ADUSK_DATA/`
+
+**User paths:**
+
+- `~/.config/adusk/`
+- `~/.adusk/`
+
+**System paths:**
+
+- `sys.prefix/adusk` (where `sys.prefix` is usually `/usr/local/`)
+
+In the case of user paths, adusk will only search for configuration files within.
+Otherwise, adusk will look in the folder for both configuration (within the `cfg/`
+subfolder), and for other data used by the program.
+
 #### What it does
 
 - It's a virtual keyboard!
@@ -38,7 +60,6 @@ adusk
 #### What it doesn't (yet!) do
 
 - Integration with `sc-desktop.py`
-- Easy configuration by the user
 - Running as a daemon
 - Conjuring via the Steam Controller itself
 - Moving/scaling the keyboard with the controller

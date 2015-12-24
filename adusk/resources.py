@@ -11,7 +11,7 @@ cfg_search_paths = (
 )
 
 static_search_paths = (
-    "{}/share/adusk/".format(sys.prefix)
+    "{}/share/adusk/".format(sys.prefix),
 )
 
 
