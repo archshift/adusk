@@ -28,6 +28,10 @@ class CoordFraction:
         self.x_fraction = x / width
         self.y_fraction = y / height
 
+    def lowpass_filter(self, prev_coords, alpha):
+        self.x_fraction = utils.compute_lowpass(self.x_fraction, prev_coords.x_fraction, alpha)
+        self.y_fraction = utils.compute_lowpass(self.y_fraction, prev_coords.y_fraction, alpha)
+
 
 class Screen:
     bg_color = sdl2.ext.Color(0x0f, 0x28, 0x3c)

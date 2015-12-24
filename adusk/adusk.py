@@ -1,6 +1,7 @@
 #!/usr/env/python3
 # -*- coding: utf-8 -*-
 
+from enum import Enum
 from threading import Thread
 
 import sdl2
@@ -21,6 +22,11 @@ def load_kb_config():
     kb_layout_file.read()
     kb_layout_file.add_to_config("keys", kb_config)
     return kb_config
+
+
+class ProgramMode(Enum):
+    INPUT = 0
+    WINDOW_MGMT = 1
 
 
 def main():
