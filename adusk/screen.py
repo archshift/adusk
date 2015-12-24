@@ -59,16 +59,14 @@ class Screen:
     def delay(self):
         sdl2.sdlgfx.SDL_framerateDelay(ctypes.byref(self.frame_rate_manager))
 
-    def render_key(self, txt, x, y, w, h, key_state):
-        x, y = utils.round_to_int(x), utils.round_to_int(y)
-        w, h = utils.round_to_int(w), utils.round_to_int(h)
-        self.renderer.fill([(x, y, w, h)], color=self.key_color[key_state])
+    def render_key(self, txt, key, key_state):
+        self.renderer.fill([(key.x, key.y, key.w, key.h)], color=self.key_color[key_state])
 
         # We don't need to continue rendering text if there's nothing to render!
         if txt == "":
             return
 
-        key_center = (x + w//2, y + h//2)
+        key_center = (key.x + key.w//2, key.y + key.h//2)
         text_surface = self.font_manager.render(txt, color=self.text_color)
         text_texture_p = sdl2.SDL_CreateTextureFromSurface(self.renderer.renderer, ctypes.byref(text_surface))
         sdl2.SDL_FreeSurface(ctypes.byref(text_surface))
@@ -86,27 +84,13 @@ class Screen:
                                  ptr.get_radius(), color.r, color.g, color.b, color.a)
 
     def render_vkb(self, virtual_kb, pointers):
-        iterated_y = 0
-
-        for i_row, row in enumerate(virtual_kb.keys):
-            iterated_x = 0
-
-            for key in row:
-                adj_x = iterated_x + virtual_kb.padding
-                adj_y = iterated_y + virtual_kb.padding
-                adj_w = key.width_weight * virtual_kb.key_width[i_row]
-                adj_h = virtual_kb.key_height
-
-                input_state = state.InputState.INACTIVE
-                if pointers[0].in_box(adj_x, adj_y, adj_w, adj_h):
-                    input_state = max(pointers[0].state, input_state)
-                if pointers[1].in_box(adj_x, adj_y, adj_w, adj_h):
-                    input_state = max(pointers[1].state, input_state)
-                self.render_key(key.str, adj_x, adj_y, adj_w, adj_h, input_state)
-
-                iterated_x += adj_w + virtual_kb.padding * 2
-
-            iterated_y += virtual_kb.key_height + virtual_kb.padding * 2
+        for key in virtual_kb.gen_key_layouts():
+            input_state = state.InputState.INACTIVE
+            if pointers[0].in_box(key.x, key.y, key.w, key.h):
+                input_state = max(pointers[0].state, input_state)
+            if pointers[1].in_box(key.x, key.y, key.w, key.h):
+                input_state = max(pointers[1].state, input_state)
+            self.render_key(virtual_kb.keys[key.row][key.col].str, key, input_state)
 
     def render(self, virtual_kb, pointers):
         self.clear()

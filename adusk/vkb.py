@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 import steamcontroller.uinput as sui
 
 from adusk import config
@@ -9,9 +11,12 @@ kb = sui.Keyboard()
 
 
 class VirtualKeyboard:
-    padding = 3
+    padding_inner = 3
+    padding_outer = 10
     key_width = []
     key_height = 0
+
+    KeyLayout = namedtuple("KeyLayout", "x y w h row col")
 
     def __init__(self, keys):
         self.keys = keys
@@ -19,7 +24,7 @@ class VirtualKeyboard:
         self.update_dimensions()
 
     def _uniform_key_width(self, row):
-        unpadded_width = screen.width - (len(self.keys[row]) * self.padding * 2)
+        unpadded_width = screen.width - self.padding_outer * 2 - (len(self.keys[row]) * self.padding_inner * 2)
         weights_total = 0
         for key in self.keys[row]:
             weights_total += key.width_weight
@@ -27,7 +32,7 @@ class VirtualKeyboard:
         return unpadded_width / weights_total
 
     def _uniform_key_height(self):
-        return (screen.height - (self.key_rows * self.padding * 2)) / self.key_rows
+        return (screen.height - self.padding_outer * 2 - (self.key_rows * self.padding_inner * 2)) / self.key_rows
 
     def update_dimensions(self):
         self.key_height = self._uniform_key_height()
@@ -36,19 +41,38 @@ class VirtualKeyboard:
             self.key_width.append(self._uniform_key_width(i))
 
     def find_key_row(self, y_coord):
-        return int(y_coord / (self.key_height + self.padding * 2))
+        return int((y_coord - self.padding_outer) / (self.key_height + self.padding_inner * 2))
 
     def find_key(self, x_coord, y_coord):
         i_row = self.find_key_row(y_coord)
         i_row = utils.clamp(i_row, 0, self.key_rows - 1)
 
-        iterated_x = 0
+        iterated_x = self.padding_outer
         for key in self.keys[i_row]:
             adjusted_key_width = key.width_weight * self.key_width[i_row]
-            iterated_x += adjusted_key_width + self.padding * 2
+            iterated_x += adjusted_key_width + self.padding_inner * 2
             if x_coord < iterated_x:
                 return key
         return None
+
+    def gen_key_layouts(self):
+        iterated_y = self.padding_outer
+
+        for i_row, row in enumerate(self.keys):
+            iterated_x = self.padding_outer
+
+            for i_key, key in enumerate(row):
+                adj_x = iterated_x + self.padding_inner
+                adj_y = iterated_y + self.padding_inner
+                adj_w = key.width_weight * self.key_width[i_row]
+                adj_h = self.key_height
+
+                yield self.KeyLayout(utils.round_to_int(adj_x), utils.round_to_int(adj_y),
+                                     utils.round_to_int(adj_w), utils.round_to_int(adj_h),
+                                     i_row, i_key)
+
+                iterated_x += adj_w + self.padding_inner * 2
+            iterated_y += self.key_height + self.padding_inner * 2
 
 
 class KeyButton:
