@@ -1,0 +1,115 @@
+---
+keys:
+- - label: '1'
+    keycode: KEY_1
+  - label: '2'
+    keycode: KEY_2
+  - label: '3'
+    keycode: KEY_3
+  - label: '4'
+    keycode: KEY_4
+  - label: '5'
+    keycode: KEY_5
+  - label: '6'
+    keycode: KEY_6
+  - label: '7'
+    keycode: KEY_7
+  - label: '8'
+    keycode: KEY_8
+  - label: '9'
+    keycode: KEY_9
+  - label: '0'
+    keycode: KEY_0
+  - label: "-"
+    keycode: KEY_MINUS
+  - label: "←"
+    keycode: KEY_BACKSPACE
+
+- - label: q
+    keycode: KEY_Q
+  - label: w
+    keycode: KEY_W
+  - label: e
+    keycode: KEY_E
+  - label: r
+    keycode: KEY_R
+  - label: t
+    keycode: KEY_T
+  - label: y
+    keycode: KEY_Y
+  - label: u
+    keycode: KEY_U
+  - label: i
+    keycode: KEY_I
+  - label: o
+    keycode: KEY_O
+  - label: p
+    keycode: KEY_P
+  - label: "\\"
+    keycode: KEY_BACKSLASH
+
+- - label: Alt
+    behavior: alt
+    width_weight: 0.9
+  - label: a
+    keycode: KEY_A
+  - label: s
+    keycode: KEY_S
+  - label: d
+    keycode: KEY_D
+  - label: f
+    keycode: KEY_F
+  - label: g
+    keycode: KEY_G
+  - label: h
+    keycode: KEY_H
+  - label: j
+    keycode: KEY_J
+  - label: k
+    keycode: KEY_K
+  - label: l
+    keycode: KEY_L
+  - label: ";"
+    keycode: KEY_SEMICOLON
+  - label: "\""
+    keycode: KEY_APOSTROPHE
+  - label: "↵"
+    keycode: KEY_ENTER
+    width_weight: 1.7
+
+- - label: "↑"
+    keycode: KEY_LEFTSHIFT
+    behavior: shift
+    width_weight: 1.2
+  - label: z
+    keycode: KEY_Z
+  - label: x
+    keycode: KEY_X
+  - label: c
+    keycode: KEY_C
+  - label: v
+    keycode: KEY_V
+  - label: b
+    keycode: KEY_B
+  - label: n
+    keycode: KEY_N
+  - label: m
+    keycode: KEY_M
+  - label: ","
+    keycode: KEY_COMMA
+  - label: "."
+    keycode: KEY_DOT
+  - label: "/"
+    keycode: KEY_SLASH
+  - label: "?"
+    keycode: KEY_QUESTION
+  - label: "↑"
+    keycode: KEY_RIGHTSHIFT
+    behavior: shift
+    width_weight: 1.2
+
+- - label: ''
+    keycode: KEY_SPACE
+  - label: Done
+    behavior: done
+    width_weight: 0.3

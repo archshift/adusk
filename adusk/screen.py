@@ -64,6 +64,10 @@ class Screen:
         w, h = utils.round_to_int(w), utils.round_to_int(h)
         self.renderer.fill([(x, y, w, h)], color=self.key_color[key_state])
 
+        # We don't need to continue rendering text if there's nothing to render!
+        if txt == "":
+            return
+
         key_center = (x + w//2, y + h//2)
         text_surface = self.font_manager.render(txt, color=self.text_color)
         text_texture_p = sdl2.SDL_CreateTextureFromSurface(self.renderer.renderer, ctypes.byref(text_surface))

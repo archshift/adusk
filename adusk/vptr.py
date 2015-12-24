@@ -15,7 +15,7 @@ class VirtualPointer:
         elif self.state == state.InputState.CLICK:
             return 7
         else:
-            assert "Invalid VirtualPointer state!"
+            assert False, "Invalid VirtualPointer state!"
 
     def in_box(self, bx, by, bw, bh):
         x, y = self.coord_frac.to_absolute()

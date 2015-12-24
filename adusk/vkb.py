@@ -1,5 +1,6 @@
 import steamcontroller.uinput as sui
 
+from adusk import config
 from adusk import screen
 from adusk import state
 from adusk import utils
@@ -73,6 +74,48 @@ def on_key_alt(virtual_kb, keycode):
 
 def on_key_done(virtual_kb, keycode):
     state.close()
+
+
+class VirtualKeyboardConfig(config.ObjectConfig):
+    @staticmethod
+    def decode_keycode(str):
+        try:
+            return sui.Keys[str]
+        except KeyError:
+            assert False, "Invalid keycode `{}`".format(str)
+
+    @staticmethod
+    def decode_callback(str):
+        if str == "generic":
+            pass
+        elif str == "shift":
+            return on_key_shift
+        elif str == "alt":
+            return on_key_alt
+        elif str == "done":
+            return on_key_done
+        else:
+            assert False, "Invalid behavior `{}`".format(str)
+        return on_key_generic
+
+    def construct(self):
+        keys = []
+
+        yaml_rows = self.objects["keys"]
+
+        for yaml_row in yaml_rows:
+            row = []
+            for yaml_key in yaml_row:
+                label = "" if "label" not in yaml_key else yaml_key["label"]
+                keycode = 0 if "keycode" not in yaml_key else self.decode_keycode(yaml_key["keycode"])
+                behavior = "generic" if "behavior" not in yaml_key else yaml_key["behavior"]
+                width_weight = 1.0 if "width_weight" not in yaml_key else yaml_key["width_weight"]
+
+                callback = self.decode_callback(behavior)
+                row.append(KeyButton(label, keycode, callback, width_weight))
+
+            keys.append(row)
+        return VirtualKeyboard(keys)
 
 
 def process_click_queue(virtual_kb, queue):

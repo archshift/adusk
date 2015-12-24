@@ -1,4 +1,4 @@
-# Steam Controller On-Screen Keyboard
+# adusk
 
 Forked from [NOTtheMessiah/scosk](https://github.com/NOTtheMessiah/scosk)
 
