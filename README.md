@@ -6,7 +6,7 @@ Forked from [NOTtheMessiah/scosk](https://github.com/NOTtheMessiah/scosk)
 
 * GNU / Linux
 * Python 3
-* [PySDL2](http://http://pysdl2.readthedocs.org)
+* [PySDL2](http://pysdl2.readthedocs.org), [SDL2_ttf](http://www.libsdl.org/projects/SDL_ttf/), [SDL2_gfx](http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
 * [Standalone Steam Controller Driver](https://github.com/ynsta/steamcontroller)
 
 ## About
