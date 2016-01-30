@@ -1,4 +1,3 @@
-from enum import IntEnum
 from threading import Lock
 
 should_exit = False
@@ -16,9 +15,3 @@ def should_close():
     with should_exit_lock:
         ret = should_exit
     return ret
-
-
-class InputState(IntEnum):
-    INACTIVE = 0
-    HOVER = 1
-    CLICK = 2

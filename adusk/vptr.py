@@ -1,7 +1,14 @@
+from enum import IntEnum
+
 from adusk import state
 
 
 class VirtualPointer:
+    class State(IntEnum):
+        INACTIVE = 0
+        HOVER = 1
+        CLICK = 2
+
     def __init__(self, state, coord_frac):
         self.state = state
         self.coord_frac = coord_frac

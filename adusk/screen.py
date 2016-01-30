@@ -8,46 +8,17 @@ from adusk import resources
 from adusk import state
 from adusk import utils
 
-width = 640
-height = 320
-
-
-class CoordFraction:
-    @staticmethod
-    def from_absolute(x, y):
-        return CoordFraction(x / width, y / height)
-
-    def __init__(self, x_fraction, y_fraction):
-        self.x_fraction = x_fraction
-        self.y_fraction = y_fraction
-
-    def to_absolute(self):
-        return self.x_fraction * width, self.y_fraction * height
-
-    def update_absolute(self, x, y):
-        self.x_fraction = x / width
-        self.y_fraction = y / height
-
-    def lowpass_filter(self, prev_coords, alpha):
-        self.x_fraction = utils.compute_lowpass(self.x_fraction, prev_coords.x_fraction, alpha)
-        self.y_fraction = utils.compute_lowpass(self.y_fraction, prev_coords.y_fraction, alpha)
+size = utils.Rect(640, 320)
 
 
 class Screen:
     bg_color = sdl2.ext.Color(0x0f, 0x28, 0x3c)
-    text_color = sdl2.ext.Color(255, 255, 255)
-
-    key_color = {
-        state.InputState.INACTIVE: sdl2.ext.Color(0x19, 0x3d, 0x55),
-        state.InputState.HOVER: sdl2.ext.Color(0x25, 0x5f, 0x7e),
-        state.InputState.CLICK: sdl2.ext.Color(0x7b, 0xb8, 0xd8),
-    }
 
     ptr_color_left = sdl2.ext.Color(255, 128, 128)
     ptr_color_right = sdl2.ext.Color(128, 255, 128)
 
     def __init__(self):
-        self.window = sdl2.ext.Window("", (width, height), flags=sdl2.SDL_WINDOW_BORDERLESS)
+        self.window = sdl2.ext.Window("", (size.w, size.h), flags=sdl2.SDL_WINDOW_BORDERLESS)
         self.renderer = sdl2.ext.Renderer(self.window)
 
         font_name = "fonts/DejaVuSansCondensed-Bold.ttf"
@@ -69,8 +40,8 @@ class Screen:
     def delay(self):
         sdl2.sdlgfx.SDL_framerateDelay(ctypes.byref(self.frame_rate_manager))
 
-    def render_key(self, txt, key, key_state):
-        self.renderer.fill([(key.x, key.y, key.w, key.h)], color=self.key_color[key_state])
+    def render_key(self, txt, key, key_color):
+        self.renderer.fill([(key.x, key.y, key.w, key.h)], color=key_color)
 
         # We don't need to continue rendering text if there's nothing to render!
         if txt == "":

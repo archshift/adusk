@@ -6,6 +6,7 @@ from adusk import config
 from adusk import screen
 from adusk import state
 from adusk import utils
+from adusk import vptr
 
 kb = sui.Keyboard()
 
@@ -16,6 +17,14 @@ class VirtualKeyboard:
     key_width = []
     key_height = 0
 
+    text_color = (255, 255, 255)
+
+    key_color = {
+        vptr.VirtualPointer.State.INACTIVE: (0x19, 0x3d, 0x55),
+        vptr.VirtualPointer.State.HOVER: (0x25, 0x5f, 0x7e),
+        vptr.VirtualPointer.State.CLICK: (0x7b, 0xb8, 0xd8),
+    }
+
     KeyLayout = namedtuple("KeyLayout", "x y w h row col")
 
     def __init__(self, keys):
@@ -24,7 +33,7 @@ class VirtualKeyboard:
         self.update_dimensions()
 
     def _uniform_key_width(self, row):
-        unpadded_width = screen.width - self.padding_outer * 2 - (len(self.keys[row]) * self.padding_inner * 2)
+        unpadded_width = screen.size.w - self.padding_outer * 2 - (len(self.keys[row]) * self.padding_inner * 2)
         weights_total = 0
         for key in self.keys[row]:
             weights_total += key.width_weight
@@ -32,7 +41,7 @@ class VirtualKeyboard:
         return unpadded_width / weights_total
 
     def _uniform_key_height(self):
-        return (screen.height - self.padding_outer * 2 - (self.key_rows * self.padding_inner * 2)) / self.key_rows
+        return (screen.size.h - self.padding_outer * 2 - (self.key_rows * self.padding_inner * 2)) / self.key_rows
 
     def update_dimensions(self):
         self.key_height = self._uniform_key_height()
