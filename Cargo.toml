@@ -5,3 +5,4 @@ authors = ["archshift <gh@archshift.com>"]
 
 [dependencies]
 sdl2 = "0.12"
+yaml-rust = "0.3.0"

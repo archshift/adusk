@@ -1,24 +1,23 @@
 extern crate sdl2;
 
-use ui::key::Key;
-use ui::renderable::Renderable;
+use ui;
 use utils::units::{Rect, RelArea};
 
 pub struct Keyboard {
     area: RelArea,
-    keys: Vec<Key>,
+    keys: Vec<ui::Key>,
 }
 
 impl Keyboard {
     pub fn new() -> Keyboard {
         Keyboard {
             area: RelArea::copy((0.02, 0.02), (0.96, 0.96)),
-            keys: Vec::<Key>::new(),
+            keys: Vec::<ui::Key>::new(),
         }
     }
 }
 
-impl Renderable for Keyboard {
+impl ui::Renderable for Keyboard {
     fn render(&self, renderer: &mut sdl2::render::Renderer, area: &Rect) {
         renderer.set_draw_color(sdl2::pixels::Color::RGB(255, 255, 255));
 

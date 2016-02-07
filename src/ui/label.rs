@@ -1,6 +1,6 @@
 extern crate sdl2;
 
-use ui::renderable::Renderable;
+use ui;
 use utils::units::Rect;
 
 pub struct Label {
@@ -15,7 +15,7 @@ impl Label {
     }
 }
 
-impl Renderable for Label {
+impl ui::Renderable for Label {
     fn render(&self, renderer: &mut sdl2::render::Renderer, area: &Rect) {
 
     }
