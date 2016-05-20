@@ -1,4 +1,4 @@
-extern crate sdl2;
+use sdl2;
 
 use ui;
 use utils::units::Rect;
@@ -10,7 +10,7 @@ pub struct Label {
 impl Label {
     pub fn new(text: String) -> Label {
         Label {
-            text: text, 
+            text: text,
         }
     }
 }

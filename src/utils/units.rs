@@ -4,7 +4,7 @@ pub struct Rect {
 }
 
 pub struct RelCoords {
-    rel_coords: (f32, f32),
+    pub rel_coords: (f32, f32),
 }
 
 impl RelCoords {
@@ -27,8 +27,8 @@ impl RelCoords {
 }
 
 pub struct RelArea {
-    pos: RelCoords,
-    size: (f32, f32),
+    pub pos: RelCoords,
+    pub size: (f32, f32),
 }
 
 impl RelArea {

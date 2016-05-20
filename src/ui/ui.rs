@@ -1,4 +1,4 @@
-extern crate sdl2;
+use sdl2;
 
 use ui;
 use ui::Renderable;
@@ -16,7 +16,7 @@ impl Ui {
         let sdl_context = sdl2::init().unwrap();
         let sdl_video_context = sdl_context.video().unwrap();
 
-        let mut window = match sdl_video_context.window("adusk", 640, 480)
+        let mut window = match sdl_video_context.window("adusk", 720, 480)
                 .position_centered()
                 .borderless()
                 .opengl()
@@ -42,6 +42,10 @@ impl Ui {
         }
     }
 
+    pub fn keyboard_mut(&mut self) -> &mut ui::Keyboard {
+        &mut self.keyboard
+    }
+
     pub fn update(&mut self) -> bool {
         for event in self.sdl.event_pump().unwrap().poll_iter() {
             match event {
@@ -65,4 +69,12 @@ impl Ui {
 
         true
     }
+}
+
+struct UiLayout {
+
+}
+
+struct UiTheme {
+
 }
