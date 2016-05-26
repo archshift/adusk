@@ -16,7 +16,7 @@ impl Ui {
         let sdl_context = sdl2::init().unwrap();
         let sdl_video_context = sdl_context.video().unwrap();
 
-        let mut window = match sdl_video_context.window("adusk", 720, 480)
+        let mut window = match sdl_video_context.window("adusk", 960, 480)
                 .position_centered()
                 .borderless()
                 .opengl()

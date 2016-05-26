@@ -32,13 +32,14 @@ impl Keyboard {
 
         let rows = self.keys.len() as f32;
         let total_v_spacing = spacing * (rows + 1.0);
-        let key_height = (self.area.size.1 - total_v_spacing) / rows;
+        // Divide non-whitespace by num rows
+        let key_height = (1.0 - total_v_spacing) / rows;
 
         let mut y_pos = spacing;
         for ref mut row in self.keys.iter_mut() {
             let total_width_weights = Keyboard::total_width_weights(&row);
             let total_h_spacing = spacing * (row.len() as f32 + 1.0);
-            let avg_key_width = (self.area.size.0 - total_h_spacing) / total_width_weights;
+            let avg_key_width = (1.0 - total_h_spacing) / total_width_weights;
 
             let mut x_pos = spacing;
             for ref mut key in row.iter_mut() {
@@ -50,7 +51,13 @@ impl Keyboard {
             }
 
             y_pos += key_height + spacing;
+
+            // Make sure we iterated through the correct amount of units
+            assert_eq!(x_pos.round(), 1.0);
         }
+
+        // Make sure we iterated through the correct amount of units
+        assert_eq!(y_pos.round(), 1.0);
     }
 }
 
@@ -67,7 +74,7 @@ impl ui::Renderable for Keyboard {
 
         for row in &self.keys {
             for key in row {
-                key.render(renderer, &self.area.to_abs(&RelArea::copy((0.02, 0.02), (0.96, 0.96)).to_abs(area)));
+                key.render(renderer, &float_rect);
             }
         }
     }
